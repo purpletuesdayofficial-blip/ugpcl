@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UGPCL - Universal General Purpose Configuration Language</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      background-color: #0d0d0d;
+      color: #00ff88;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #00ffcc;
+      font-size: 36px;
+    }
+
+    h2 {
+      color: #00ffaa;
+      margin-top: 40px;
+    }
+
+    .box {
+      background: #111;
+      padding: 15px;
+      border-left: 3px solid #00ff88;
+      margin: 10px 0;
+    }
+
+    code {
+      color: #ffffff;
+      background: #222;
+      padding: 2px 5px;
+    }
+
+    .terminal {
+      background: black;
+      padding: 15px;
+      border: 1px solid #00ff88;
+      margin-top: 20px;
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    a {
+      color: #00ffcc;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>UGPCL</h1>
+  <p>Universal General Purpose Configuration Language</p>
+
+  <div class="box">
+    A minimal interpreted configuration and scripting language built around sections, modules, and deterministic execution.
+  </div>
+
+  <h2>What is this?</h2>
+  <div class="box">
+    UGPCL is a lightweight language designed for structured execution and modular expansion via UGPCI and UGPIP.
+  </div>
+
+  <h2>Core Idea</h2>
+  <div class="box">
+    - Section-based execution model<br>
+    - Minimal syntax<br>
+    - External module system (UGPIP)<br>
+    - GitHub-based package imports
+  </div>
+
+  <h2>Example</h2>
+
+  <div class="terminal">
+1'2<br><br>
+
+1,1:import,extra<br>
+2,1:print,str,Hello World<br>
+!;
+  </div>
+
+  <h2>Modules</h2>
+  <div class="box">
+    extra → printing and runtime helpers<br>
+    graphic → terminal control and colors<br>
+    debug → state inspection tools
+  </div>
+
+  <h2>How it runs</h2>
+  <div class="box">
+    python ugpci/main.py file.ugcpl
+  </div>
+
+  <h2>Status</h2>
+  <div class="box">
+    Early alpha. Actively evolving interpreter + module system.
+  </div>
+
+  <h2>Links</h2>
+  <div class="box">
+    <a href="https://github.com/yourname/ugpci">GitHub Repository</a>
+  </div>
+
+  <p class="blink">_</p>
+
+</div>
+</body>
+    </html>
