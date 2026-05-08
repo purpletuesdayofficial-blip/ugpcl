@@ -1,1 +1,2 @@
-
+module,debug
+command,dump,state
