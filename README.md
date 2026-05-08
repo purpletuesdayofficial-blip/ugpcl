@@ -214,3 +214,7 @@ ugpci/
 
 UGPCL is in early alpha.  
 Interpreter, module system, and language specification are actively evolving.
+
+# License
+
+UGPCL uses the GNU General Public Licensed v2.0. 
