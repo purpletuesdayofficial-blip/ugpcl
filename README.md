@@ -199,9 +199,13 @@ It avoids unnecessary complexity and focuses on predictable execution.
 # Project Structure
 
 ugpci/
+
   ugpci/        interpreter core
+
   modules/      official UGCM modules
+
   examples/     sample programs
+
   cache/        downloaded packages
 
 ---
