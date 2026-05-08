@@ -1,1 +1,3 @@
-
+module,graphic
+command,clear,screen
+command,print,colored
