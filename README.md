@@ -4,7 +4,7 @@
 ![Status](https://img.shields.io/badge/status-alpha-orange)
 ![Runtime](https://img.shields.io/badge/runtime-UGPCI-purple)
 ![Packages](https://img.shields.io/badge/packages-UGPIP-green)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![License](https://img.shields.io/badge/license-GPL-lightgrey)
 
 UGPCL (Universal General Purpose Configuration Language) is a minimal interpreted configuration and scripting language designed for simplicity, extensibility, and modular execution.
 
