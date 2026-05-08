@@ -29,41 +29,31 @@ class Program:
 
 
 def parse(source):
-    """
-    Converts raw UGPCI source into structured program.
-    """
-
     program = Program()
 
-    # split lines, remove empty ones
     lines = [l.strip() for l in source.splitlines() if l.strip()]
 
     if not lines:
         error("Empty program")
 
-    # first line = execution order
+    # execution order
     program.schedule = lines[0].split("'")
 
     for raw in lines[1:]:
-        # ---------------- COMMENTS ----------------
-
-        # full-line comment
+        # full line comment
         if raw.startswith("$;"):
             continue
 
-        # terminate program
         if raw == "!;":
             break
 
-        # inline comment stripping
+        # inline comments
         raw = raw.split("$;")[0].strip()
         if not raw:
             continue
 
-        # ---------------- SYNTAX PARSING ----------------
-
         if ":" not in raw:
-            error(f"Invalid syntax (missing ':'): {raw}")
+            error(f"Invalid syntax: {raw}")
 
         left, right = raw.split(":", 1)
 
@@ -76,81 +66,79 @@ def parse(source):
 
         program.sections.setdefault(section, []).append(parts)
 
-        debug_log(f"Parsed: section={section}, instruction={parts}")
+        debug_log(f"Parsed {section}: {parts}")
 
     return program
 
 
-# ---------------- EXECUTION ENGINE ----------------
+# ---------------- EXECUTION ----------------
 
 def run_program(program):
-    """
-    Executes parsed UGPCI program.
-    """
+    debug_log("Running program")
 
-    debug_log("Starting execution")
-
-    # ---------------- SECTION 1 (CONFIG) ----------------
+    # config section always first
     for instr in program.sections.get("1", []):
         execute(instr)
 
-    # ---------------- SCHEDULED SECTIONS ----------------
+    # scheduled execution
     for sec in program.schedule[1:]:
         for instr in program.sections.get(sec, []):
             execute(instr)
 
 
 def execute(instr):
-    """
-    Executes a single instruction.
-    """
-
     if not instr:
         return
 
     cmd = instr[0]
+    args = instr[1:]
 
-    debug_log(f"Executing: {instr}")
+    debug_log(f"EXEC: {instr}")
 
     # ---------------- SET ----------------
     if cmd == "set":
-        _, key, value = instr
-        STATE[key] = value
+        if len(args) < 2:
+            error("set requires key,value")
+        STATE[args[0]] = args[1]
         return
 
     # ---------------- IMPORT ----------------
     if cmd == "import":
-        import_module(instr[1])
+        import_module(args[0])
         return
 
-    # ---------------- PRINT ----------------
-    if cmd == "print":
-        typ = instr[1]
-        val = instr[2]
-
-        key = f"print:{typ}"
-
-        if key in COMMANDS:
-            COMMANDS[key](val)
-        else:
-            error(f"Unknown print type: {typ}")
-
-        return
-
-    # ---------------- DEBUG ----------------
+    # ---------------- DEBUG TOGGLE ----------------
     if cmd == "debug":
         global DEBUG
         DEBUG = True
-        print("Debug mode enabled")
+        print("Debug enabled")
+        return
+
+    # ---------------- COMMAND DISPATCH (FIXED) ----------------
+    # supports:
+    # clear,screen → clear:screen
+    # print,colored → print:colored
+
+    if len(args) > 0:
+        key = f"{cmd}:{args[0]}"
+        payload = args[1:] if len(args) > 1 else []
+
+        if key in COMMANDS:
+            COMMANDS[key]("|".join(payload) if payload else "")
+            return
+
+    # fallback: raw command
+    if cmd in COMMANDS:
+        COMMANDS[cmd]("|".join(args) if args else "")
         return
 
     error(f"Unknown command: {cmd}")
 
 
-# ---------------- MODULE SYSTEM (UGPIP) ----------------
+# ---------------- MODULE SYSTEM ----------------
 
 def import_module(name):
-    debug_log(f"Importing module: {name}")
+    debug_log(f"Import: {name}")
 
     if name == "extra":
         load_extra()
@@ -171,14 +159,17 @@ def import_module(name):
     error(f"Unknown module: {name}")
 
 
-# ---------------- BUILTIN MODULES ----------------
+# ---------------- MODULE: EXTRA ----------------
 
 def load_extra():
     COMMANDS["print:str"] = lambda v: print(v)
     COMMANDS["print:int"] = lambda v: print(int(v))
 
 
+# ---------------- MODULE: GRAPHIC ----------------
+
 def load_graphic():
+
     def clear(_):
         print("\033[2J\033[H", end="")
 
@@ -186,7 +177,7 @@ def load_graphic():
         try:
             color, text = v.split("|")
         except:
-            error("graphic.print,colored requires color|text")
+            error("format: print,colored,color|text")
 
         colors = {
             "red": "\033[31m",
@@ -201,16 +192,19 @@ def load_graphic():
     COMMANDS["print:colored"] = colored
 
 
+# ---------------- MODULE: DEBUG ----------------
+
 def load_debug():
+
     def dump(_):
-        print("STATE DUMP:")
+        print("STATE:")
         for k, v in STATE.items():
             print(f"{k} = {v}")
 
     COMMANDS["dump:state"] = dump
 
 
-# ---------------- GITHUB IMPORT (NO REQUESTS) ----------------
+# ---------------- GITHUB MODULE LOADER ----------------
 
 def load_github(path):
     path = path.replace("github:", "")
@@ -232,16 +226,12 @@ def load_github(path):
             source = urllib.request.urlopen(url).read().decode()
             open(cache_file, "w").write(source)
     except Exception as e:
-        error(f"GitHub module failed: {e}")
+        error(f"GitHub import failed: {e}")
 
     parse_module(source)
 
 
 def parse_module(source):
-    """
-    Minimal UGCM parser.
-    """
-
     for line in source.splitlines():
         line = line.strip()
 
@@ -254,10 +244,11 @@ def parse_module(source):
             # command,name,type
             _, name, typ = parts[:3]
 
+            # FIXED mapping
             COMMANDS[f"{name}:{typ}"] = lambda v: print(v)
 
 
-# ---------------- ENTRY POINT ----------------
+# ---------------- RUN FILE ----------------
 
 def run_file(path):
     with open(path) as f:
