@@ -1,1 +1,8 @@
+1'2
 
+1,1:import,extra
+1,2:import,graphic
+
+2,1:print,str,Hello World
+2,2:clear,screen
+!;
